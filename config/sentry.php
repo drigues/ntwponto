@@ -1,6 +1,6 @@
 <?php
 
-use Sentry\Event;
+use App\Sentry\RemovePii;
 
 /**
  * Sentry Laravel SDK configuration file.
@@ -53,14 +53,7 @@ return [
     'send_default_pii' => env('SENTRY_SEND_DEFAULT_PII', false),
 
     // Remove PII before sending to Sentry (RGPD compliance)
-    'before_send' => function (Event $event): ?Event {
-        if ($user = $event->getUser()) {
-            $user->setEmail(null);
-            $user->setIpAddress(null);
-        }
-
-        return $event;
-    },
+    'before_send' => [RemovePii::class, 'handle'],
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#ignore_exceptions
     // 'ignore_exceptions' => [],
