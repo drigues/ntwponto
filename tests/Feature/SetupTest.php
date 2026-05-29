@@ -24,6 +24,16 @@ it('returns security headers on every response', function () {
     $response->assertHeader('X-Content-Type-Options', 'nosniff');
     $response->assertHeader('X-Frame-Options', 'DENY');
     $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    $response->assertHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    $response->assertHeaderMissing('X-Powered-By');
+});
+
+it('adds HSTS header in production', function () {
+    app()->detectEnvironment(fn () => 'production');
+
+    $response = $this->get('/');
+
+    $response->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 });
 
 it('blocks admin paths in robots.txt', function () {
