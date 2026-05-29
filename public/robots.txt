@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /admin
+Disallow: /admin/
+Disallow: /filament
+Disallow: /horizon
+Disallow: /telescope
+Disallow: /_debugbar
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /*.env
+Disallow: /*.log
+Allow: /
