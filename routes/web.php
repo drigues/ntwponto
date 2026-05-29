@@ -3,8 +3,13 @@
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordChangeController;
+use App\Http\Controllers\RelatorioPdfController;
 use App\Http\Middleware\EnsurePasswordIsChanged;
+use App\Livewire\PainelPonto;
+use App\Livewire\RelatorioIndividual;
+use App\Models\Marcacao;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -48,7 +53,20 @@ Route::middleware('auth')->group(function () {
 
 // App — authenticated + password changed
 Route::middleware(['auth', EnsurePasswordIsChanged::class])->group(function () {
-    Route::get('/ponto', function () {
-        return view('welcome'); // placeholder until Prompt 5
-    })->name('ponto');
+    Route::get('/ponto', PainelPonto::class)->name('ponto');
+    Route::get('/relatorio', RelatorioIndividual::class)->name('relatorio');
+    Route::get('/relatorio/pdf', [RelatorioPdfController::class, 'inline'])->name('relatorio.pdf');
+    Route::post('/relatorio/pdf/async', [RelatorioPdfController::class, 'async'])->name('relatorio.pdf.async');
+
+    Route::get('/pdf/{filename}', [RelatorioPdfController::class, 'download'])
+        ->name('pdf.download')
+        ->middleware('signed');
+
+    Route::get('/marcacao/{marcacao}/foto', function (Marcacao $marcacao) {
+        if (! $marcacao->foto_path || ! Storage::exists($marcacao->foto_path)) {
+            abort(404);
+        }
+
+        return Storage::download($marcacao->foto_path);
+    })->name('marcacao.foto')->middleware('signed');
 });
